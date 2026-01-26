@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UnitType {
+  kg
+  g
+  l
+  ml
+  un
+}
+
+enum movesType {
+  in
+  out
+}
+
+model User {
+  id       String  @id
+  name     String
+  email    String  @unique
+  admin    Boolean @default(false)
+  password String
+  token    String?
+  avatar   String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  uptadesAt DateTime  @default(now()) @updatedAt
+  moves     Move[]
+
+  @@map("users")
+}
+
+model Category {
+  id        String    @id
+  name      String
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  products  Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id         String   @id
+  name       String
+  price      Int
+  stock      Int      @default(0)
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+  unitPrice  Int      @map("unit_price")
+  unitType   UnitType @default(un) @map("unit_type")
+  minStock   Int      @default(0) @map("min_stock")
+  maxStock   Int      @default(0) @map("max_stock")
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  moves     Move[]
+
+  @@map("products")
+}
+
+model Move {
+  id        String    @id
+  productId String    @map("product_id")
+  userId    String    @map("user_id")
+  product   Product   @relation(fields: [productId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  type      movesType
+  quantity  Int
+  price     Int
+
+  createdAt DateTime @default(now())
+
+  @@map("Moves")
+}
