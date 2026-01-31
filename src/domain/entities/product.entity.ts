@@ -7,6 +7,7 @@ export type ProductProps = {
     stock: number,
     categoryId: string,
     unitPrice: number,
+    category?: string
     unitType: "kg" | "g" | "l" | "ml" | "un",
     minStock: number,
     maxStock: number,
@@ -84,7 +85,7 @@ export class Product {
         return new Product({
             ...props,
             createdAt: new Date(),
-            updatedAt: new Date
+            updatedAt: new Date()
         })
     }
 

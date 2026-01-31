@@ -14,8 +14,6 @@ type CreateProductInput = {
     maxStock: number
 }
 
-
-
 export class CreateProduct {
     constructor(
         private readonly productRepository: IProductRepository,
@@ -28,8 +26,6 @@ export class CreateProduct {
         if(!category){
             throw new Error("Categoria não encontrada")
         }
-
-        console.log("min"+data.minStock)
 
         const product = Product.create({
             id: uuidv4(),

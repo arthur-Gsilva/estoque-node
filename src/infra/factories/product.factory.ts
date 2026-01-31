@@ -1,6 +1,8 @@
-import { CreateProduct } from "../../application/use-cases/product/create-Product.use-cases"
+
+import { CreateProduct } from "../../application/use-cases/product/create-product.use-cases"
+import { DeleteProduct } from "../../application/use-cases/product/delete-product.use-cases"
 import { GetProductById } from "../../application/use-cases/product/get-product-by-id.use-cases"
-import { listProducts } from "../../application/use-cases/product/list-products.use-cases"
+import { ListProducts } from "../../application/use-cases/product/list-products.use-cases"
 import { CategoryRepository } from "../database/repositories/category.repository"
 import { ProductRepository } from "../database/repositories/product.repository"
 import { ProductController } from "../http/controllers/product.controller"
@@ -28,9 +30,8 @@ export const makeProductController = () => {
     
     return new ProductController(
         new CreateProduct(repository, categoryRepository),
-        new GetProductById(repository),
-        new listProducts(repository),
-        // new UpdateCategory(repository),
-        // new DeleteCategory(repository)
+        new GetProductById(repository, categoryRepository),
+        new ListProducts(repository, categoryRepository), 
+        new DeleteProduct(repository)
     )
 }

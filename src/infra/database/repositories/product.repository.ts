@@ -2,6 +2,7 @@ import { Product } from "../../../domain/entities/product.entity";
 import type { IProductRepository } from "../../../domain/repositories/product.repository.interface";
 import { prisma } from "../../../libs/prisma";
 
+
 export class ProductRepository implements IProductRepository {
     async findById(id: string): Promise<Product | null> {
         const product = await prisma.product.findFirst({
@@ -12,9 +13,22 @@ export class ProductRepository implements IProductRepository {
         return this.toDomain(product)
     }
 
-    async findAll(): Promise<Product[]> {
+    async findAll(offset: number, limit: number, query?: string): Promise<Product[]> {
         const products = await prisma.product.findMany({
-            where: {deletedAt: null}
+            where: {
+                deletedAt: null,
+                OR: [
+                    { name: { contains: query || "", mode: "insensitive" } },
+                ],
+            },
+            include: {
+                category: {
+                    select: {name: true}
+                }
+            },
+            skip: offset,
+            take: limit,
+            
         })
 
         return products.map(product => this.toDomain(product))
@@ -46,6 +60,17 @@ export class ProductRepository implements IProductRepository {
         })
     }
 
+    async findByIdWithLock(id: string, tx: any): Promise<Product | null> {
+        const product = await tx.$queryRaw`
+            SELECT * FROM products 
+            WHERE id = ${id} AND deleted_at IS NULL 
+            FOR UPDATE
+        `
+
+        if (!product || product.length === 0) return null
+        return this.toDomain(product[0])
+    }
+
 
 
     private toDomain(data: any): Product {
@@ -61,6 +86,7 @@ export class ProductRepository implements IProductRepository {
             unitType: data.unitType,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt,
+            category: data.category?.name 
         })
     }
 }
