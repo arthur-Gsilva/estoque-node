@@ -1,5 +1,3 @@
-// src/infra/database/transaction/prisma-transaction.ts
-
 import { prisma } from '../../../libs/prisma'
 import type { ITransaction } from '../../../domain/repositories/transaction.interface'
 
